@@ -1,23 +1,29 @@
-const express = require('express');
-const morgan = require('morgan');
-const cors = require('cors');
+const express = require('express')
+const app = express()
+const { PORT, CLIENT_URL } = require('./constants')
 
+const cookieParser = require('cookie-parser')
+const passport = require('passport')
+const cors = require('cors')
 
-const apiRoutes = require('./routes/api.routes');
+require('./middlewares/passport_middleware')
 
-const app = express();
+app.use(express.json())
+app.use(cookieParser())
+app.use(passport.initialize())
+app.use(cors({origin: CLIENT_URL, credentials: true}))
 
-app.use(cors());
-app.use(morgan('dev'));
-app.use(express.json());
+const authRouter = require('./routes/auth')
+app.use(authRouter)
 
-app.use(apiRoutes);
+const appStart = () => {
+    try {
+        app.listen(PORT, () => {
+            console.log(`The app is running at http://localhost:${PORT}`)
+        })
+    } catch (error) {
+        console.log(error.message)
+    }
+}
 
-app.use((err, req, res, next) => {
-    return res.json({
-        message: err.message
-    })
-});
-
-app.listen(3000);
-console.log('Server on port: 3000');
+appStart()
