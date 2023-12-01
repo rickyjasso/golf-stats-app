@@ -1,44 +1,46 @@
 import React, { useState } from 'react'
-import {useNavigate} from 'react-router-dom'
 
+import { useDispatch } from 'react-redux'
+import { authenticateUser } from '../../redux/slices/authSlice'
+import { onLogin } from '../../api/auth.routes'
 
 const Login = () => {
 
-    const [loginData, setLoginData] = useState({
+    const [values, setValues] = useState({
         email: '',
-        password: ''
-    })
-
-    const navigate = useNavigate();
-
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-
+        password: '',
+      })
+      const [error, setError] = useState(false)
+    
+      const onChange = (e) => {
+        setValues({ ...values, [e.target.name]: e.target.value })
+      }
+    
+      const dispatch = useDispatch()
+      const onSubmit = async (e) => {
+        e.preventDefault()
+    
         try {
-           const res = await fetch('http://localhost:3000/login', {
-                method: 'POST',
-                body: JSON.stringify(loginData),
-                headers: {'Content-Type': "application/json"},
-            })
-            if (res.status===200)
-                navigate('/stats');
-            else {
-                throw new Error(res)
-            }
+          await onLogin(values)
+          dispatch(authenticateUser())
+    
+          localStorage.setItem('isAuth', 'true')
         } catch (error) {
-            console.log(error.message)
+          console.log(error.response.data.errors[0].msg)
+          setError(error.response.data.errors[0].msg)
         }
-    }
-
-    const handleChange = (e) => {
-        setLoginData({...loginData, [e.target.name]: e.target.value})
-    }
+      }
 
   return (
-    <div className='px-5 flex justify-center'>
-        <form action="submit" className='flex flex-col' onSubmit={handleSubmit}>
-            <input className='border border-black my-2 px-2' type="text" name='email' placeholder='johnsmith@gmail.com' onChange={handleChange} />
-            <input className='border border-black my-2 px-2' type="password" name='password' placeholder='Enter password...'  onChange={handleChange}/>
+    <div className='px-5 flex flex-col justify-center'>
+      <h1 className='text-3xl text-center'>Login</h1>
+        <form action="submit" className='flex flex-col' onSubmit={onSubmit}>
+            <h1>Login</h1>
+            <input className='border border-black my-2 px-2' type="text" name='email' placeholder='johnsmith@gmail.com' onChange={onChange} />
+            <input className='border border-black my-2 px-2' type="password" name='password' placeholder='Enter password...'  onChange={onChange}/>
+
+            <div style={{ color: 'red', margin: '10px 0' }}>{error}</div>
+
             <button type='submit' className='border border-black'>Log In</button>
         </form>
     </div>

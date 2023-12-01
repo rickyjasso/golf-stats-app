@@ -8,14 +8,12 @@ import RestrictedRoutes from './private/restrictedRoutes'
 import PrivateRoutes from './private/privateRoutes'
 
 
-
 function App() {
 
   return (
     <BrowserRouter>
       <Navbar/>
       <Routes>
-        <Route path='/' element={<Home/>}/>
 
         <Route element={<PrivateRoutes/>}>
           <Route path='/stats' element={<Stats/>}/>
@@ -24,6 +22,7 @@ function App() {
         <Route element={<RestrictedRoutes/>}>
           <Route path='/register' element={<Register/>}/>
           <Route path='/login' element={<Login/>}/>
+          <Route path='/' element={<Home/>}/>
         </Route>
 
       </Routes>
