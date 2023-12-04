@@ -63,6 +63,29 @@ exports.getGolfClubs = async(req, res) => {
     return
 }
 
+exports.deleteGolfClub = async (req, res) => {
+    let token = req.cookies.token;
+    if (!token) {
+        // Handle the case when there's no token (user not authenticated)
+        return res.status(401).json({ error: 'Unauthorized' });
+    }
+    try {
+        const {id} = req.params
+        const result = await db.query(`DELETE FROM golf_club WHERE id = $1`, [id])
+        if (result.rowCount === 0) return res.status(404).json({
+            message: "Club not found",
+        });
+        return res.status(204).json({
+            success: true,
+            message: 'Golf club deleted correctly.',
+        })
+    } catch (error) {
+        res.status(500).json({
+            error: error.message
+        })
+    }
+}
+
 
 exports.createGolfBag = async(req, res) => {
     let token = req.cookies.token;
