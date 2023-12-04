@@ -16,6 +16,9 @@ app.use(cors({origin: CLIENT_URL, credentials: true}))
 const authRouter = require('./routes/auth')
 app.use(authRouter)
 
+const apiRouter = require('./routes/api.routes')
+app.use(apiRouter)
+
 const appStart = () => {
     try {
         app.listen(PORT, () => {
