@@ -46,7 +46,10 @@ exports.getGolfClubs = async(req, res) => {
                                    WHERE gp.id = $1;`, [golf_player])
 
         if (gc.rows.length === 0) {
-            throw new Error('No golf clubs.')
+            return res.status(200).json({
+                success: true,
+                message: 'No clubs to fetch.'
+            })
         }
 
         return res.status(200).json({

@@ -24,3 +24,9 @@ export async function onAddGolfClubs(clubData){
         'http://localhost:3000/golfclubs/new', clubData
     )
 }
+
+export async function onDeleteGolfClubs(clubId){
+    return await axios.delete(
+        `http://localhost:3000/golfclubs/${clubId}`
+    )
+}

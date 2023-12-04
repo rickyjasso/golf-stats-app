@@ -1,6 +1,7 @@
 import React, {useState, useEffect} from 'react'
 import axios from 'axios'
-import { onAddGolfClubs, onGetGolfClubs } from '../../api/api.routes';
+import { onAddGolfClubs, onDeleteGolfClubs, onGetGolfClubs } from '../../api/api.routes';
+import { MdDelete } from "react-icons/md";
 
 const GolfClubs = () => {
     const [golfClubs, setGolfClubs] = useState(null);
@@ -41,16 +42,29 @@ useEffect(() => {
           }
       }
 
+    const handleDelete = async (club_id) => {
+      try {
+        await onDeleteGolfClubs(club_id)
+        fetchData();
+      } catch (error) {
+        console.log(error)
+      }
+    }
+
   return (
     <div>
         {loading && <p>Loading...</p>}
         {golfClubs && golfClubs.length > 0 ? (
         // User has a golf bag, display the current bag
-        <div>
+        <div className='my-5'>
         {golfClubs.map((club) => (
-            <div className='flex' key={club.club_id}> {/* Added a key for each mapped item */}
-                <p>{club.club_type}</p>
-                <p>: {club.club_number}</p>
+            <div className='flex justify-between' key={club.club_id}> {/* Added a key for each mapped item */}
+              <div className='flex'>
+                  <p>{club.club_type}</p>
+                  <p>: {club.club_number}</p>
+              </div>
+                <button onClick={() => handleDelete(club.club_id)}><MdDelete /></button>
+
             </div>
         ))}
         </div>
