@@ -1,6 +1,7 @@
 import React, {useState, useEffect} from 'react'
 import axios from 'axios'
-import { onCreateGolfBag } from '../../api/api.routes';
+import { onCreateGolfBag, onGetGolfBag } from '../../api/api.routes';
+import GolfClubs from '../../components/clubs';
 axios.defaults.withCredentials = true
 
 const GolfBag = () => {
@@ -13,7 +14,7 @@ const GolfBag = () => {
 
     useEffect(() => {
         // Make API call to check user's golf bag
-        axios.get('http://localhost:3000/golfbag')
+        onGetGolfBag()
           .then(response => {
             setGolfBag(response.data.golf_bag);
           })
@@ -46,8 +47,9 @@ const GolfBag = () => {
 
         {golfBag && golfBag.length > 0 ? (
         // User has a golf bag, display the current bag
-        <div>
+        <div className='flex flex-col items-center'>
             <h2>Current Bag: {golfBag[0].bag_name}</h2>
+            <GolfClubs/>
             {/* Add other details if needed */}
         </div>
         ) : (
