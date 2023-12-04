@@ -9,7 +9,7 @@ const RestrictedRoutes = () => {
 
   return (
     <>
-        {!isAuth ? <Outlet/> : <Navigate to='/stats' />}
+        {!isAuth ? <Outlet/> : <Navigate to='/player' />}
     </>
   )
 }

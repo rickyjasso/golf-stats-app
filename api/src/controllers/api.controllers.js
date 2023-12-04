@@ -60,6 +60,5 @@ exports.getGolfBag = async (req, res) => {
         })
     }
 
-    console.log(decoded.id)
     return
 }

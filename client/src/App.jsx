@@ -1,11 +1,13 @@
 import {BrowserRouter, Routes, Route} from 'react-router-dom'
-import Login from './components/login'
-import Register from './components/register'
-import Stats from './components/stats'
+import Login from './pages/login'
+import Register from './pages/register'
+import Stats from './pages/stats'
 import Navbar from './components/navbar'
-import Home from './components/home'
+import Home from './pages/home'
 import RestrictedRoutes from './private/restrictedRoutes'
 import PrivateRoutes from './private/privateRoutes'
+import Player from './pages/player'
+import GolfBag from './pages/golfbag'
 
 
 function App() {
@@ -16,7 +18,9 @@ function App() {
       <Routes>
 
         <Route element={<PrivateRoutes/>}>
+          <Route path='/player' element={<Player/>}/>
           <Route path='/stats' element={<Stats/>}/>
+          <Route path='/golfbag' element={<GolfBag/>}/>
         </Route>
 
         <Route element={<RestrictedRoutes/>}>
