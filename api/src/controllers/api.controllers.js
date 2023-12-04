@@ -89,6 +89,31 @@ exports.deleteGolfClub = async (req, res) => {
     }
 }
 
+exports.updateGolfClub = async (req, res) => {
+    let token = req.cookies.token;
+    if (!token) {
+        // Handle the case when there's no token (user not authenticated)
+        return res.status(401).json({ error: 'Unauthorized' });
+    }
+    try {
+        const {id} = req.params;
+        const {club_type, club_number} = req.body;
+        const result = await db.query(`UPDATE golf_club SET club_type = $1, club_number = $2 WHERE id = $3 RETURNING *`, [club_type, club_number, id])
+        if (result.rowCount === 0) return res.status(404).json({
+            message: "Club not found",
+        });
+        return res.status(204).json({
+            success: true,
+            message: 'Golf club updated correctly.',
+            res: result.rows[0]
+        })
+    } catch (error) {
+        res.status(500).json({
+            error: error.message
+        })
+    }
+}
+
 
 exports.createGolfBag = async(req, res) => {
     let token = req.cookies.token;

@@ -1,7 +1,7 @@
 import React, {useState, useEffect} from 'react'
 import axios from 'axios'
-import { onAddGolfClubs, onDeleteGolfClubs, onGetGolfClubs } from '../../api/api.routes';
-import { MdDelete } from "react-icons/md";
+import { onAddGolfClubs, onDeleteGolfClubs, onGetGolfClubs, onUpdateGolfClub } from '../../api/api.routes';
+import { MdDelete, MdEdit } from "react-icons/md";
 
 const GolfClubs = () => {
     const [golfClubs, setGolfClubs] = useState(null);
@@ -51,6 +51,14 @@ useEffect(() => {
       }
     }
 
+    const handleEdit = async (club_id) => {
+      try {
+        await onUpdateGolfClub(club_id, values)
+      } catch (error) {
+        
+      }
+    }
+
   return (
     <div>
         {loading && <p>Loading...</p>}
@@ -63,7 +71,10 @@ useEffect(() => {
                   <p>{club.club_type}</p>
                   <p>: {club.club_number}</p>
               </div>
-                <button onClick={() => handleDelete(club.club_id)}><MdDelete /></button>
+              <div>
+                <button onClick={() => handleDelete(club.club_id)}><MdEdit /></button>
+                <button onClick={() => handleEdit(club.club_id)}><MdDelete /></button>
+              </div>
 
             </div>
         ))}

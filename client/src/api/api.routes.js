@@ -30,3 +30,9 @@ export async function onDeleteGolfClubs(clubId){
         `http://localhost:3000/golfclubs/${clubId}`
     )
 }
+
+export async function onUpdateGolfClub(clubId, clubData){
+    return await axios.put(
+        `http://localhost:3000/golfclubs/edit/${clubId}`, clubData
+    )
+}
