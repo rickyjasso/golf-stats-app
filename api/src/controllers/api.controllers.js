@@ -39,7 +39,7 @@ exports.getGolfClubs = async(req, res) => {
         let decoded = jwt.verify(token, SECRET);
         let golf_player = decoded.id
 
-        const gc = await db.query(`SELECT club_type, club_number 
+        const gc = await db.query(`SELECT gc.id AS club_id, club_type, club_number 
                                    FROM golf_player AS gp
                                    JOIN golf_bag AS gb ON gp.id = gb.player_id
                                    JOIN golf_club AS gc ON gb.id = gc.golf_bag_id
