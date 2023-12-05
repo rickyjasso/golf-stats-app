@@ -1,11 +1,14 @@
 import React from 'react'
+import Card from '../../components/card/card'
 import {Link} from 'react-router-dom'
 
 const Player = () => {
   return (
-    <div className='px-5 flex flex-col justify-center items-center'>
+    <div className='px-5 my-12 flex flex-col justify-center items-center'>
       <h1 className='text-3xl mb-10'>Welcome back!</h1>
-      <Link to="/golfbag">My Golf Bag</Link>
+      <Card linkTo='/golfbag' body='My Golf Bag' />
+      <Card linkTo='/golfbag' body='View Rounds' />
+      <Card linkTo='/golfbag' body='New Round' />
     </div>
   )
 }
