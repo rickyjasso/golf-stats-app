@@ -21,7 +21,7 @@ const GolfClubs = () => {
   const fetchData = async () => {
     try {
       const response = await onGetGolfClubs();
-      setGolfClubs(response.data.golf_clubs);
+      setGolfClubs(response.data.golf_clubs.sort((a, b) => a.club_id - b.club_id));
     } catch (error) {
       console.error('Error fetching golf clubs:', error);
     } finally {
@@ -69,7 +69,7 @@ const GolfClubs = () => {
   };
 
   return (
-    <div>
+    <div className='w-full'>
       {loading && <p>Loading...</p>}
       <div className='my-5'>
         {golfClubs && golfClubs.length > 0 && (
@@ -111,11 +111,12 @@ const GolfClubs = () => {
           </>
         )}
       </div>
-
-      <button onClick={() => setIsFormOpen(true)}>Add Club</button>
+      {
+      isFormOpen ? <div></div> : <button className='w-full' onClick={() => setIsFormOpen(true)}>Add Club</button>
+      }
 
       {isFormOpen && !editingClub && (
-        <form className='my-10 flex flex-col' onSubmit={onSubmit}>
+        <form className='my-10 flex flex-col items-center' onSubmit={onSubmit}>
           <input
             className='border border-black my-2 px-2'
             type="text"
@@ -132,7 +133,7 @@ const GolfClubs = () => {
             value={values.club_number}
             onChange={onChange}
           />
-          <button type="submit">Add Club</button>
+          <button className='' type="submit">Add Club</button>
         </form>
       )}
     </div>
