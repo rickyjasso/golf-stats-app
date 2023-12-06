@@ -174,3 +174,20 @@ exports.getGolfBag = async (req, res) => {
 
     return
 }
+
+exports.getGolfCourse = async (req, res) => {
+    try {
+        const {id} = req.params;
+        const result = await db.query(`SELECT * FROM golf_course WHERE id = $1`, [id])
+        return res.status(200).json({
+            success: true,
+            message: 'Golf course fetched correctly.',
+            res: result.rows[0]
+        })
+    } catch (error) {
+        res.status(500).json({
+            error: error.message
+        })
+    }
+
+}
