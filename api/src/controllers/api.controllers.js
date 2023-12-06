@@ -191,3 +191,31 @@ exports.getGolfCourse = async (req, res) => {
     }
 
 }
+
+exports.newGolfRound = async(req, res) => {
+    let token = req.cookies.token;
+    if (!token) {
+        // Handle the case when there's no token (user not authenticated)
+        return res.status(401).json({ error: 'Unauthorized' });
+    }
+
+    try {
+        let decoded = jwt.verify(token, SECRET);
+        let golf_player = decoded.id;
+        let {course_id, num_holes} = req.body;
+        const date = new Date()
+        const todaysDate = date.toLocaleDateString()
+        response = await db.query(`INSERT INTO golf_round (player_id, course_id, round_score, round_date, num_holes)
+                        VALUES ($1, $2, 0, $3, $4)`, [golf_player, course_id, todaysDate, num_holes]);
+        
+        return res.status(200).json({
+            success: true,
+            message: 'Golf round created correctly.',
+            res: response.rows[0],
+        })
+    } catch (error) {
+        res.status(500).json({
+            error: error.message
+        })
+    }
+}

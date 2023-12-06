@@ -30,8 +30,8 @@ CREATE TABLE golf_course(
 
 CREATE TABLE golf_round(
     id SERIAL PRIMARY KEY,
-    player_id INT UNIQUE REFERENCES golf_player (id) ON DELETE CASCADE,
-    course_id INT UNIQUE REFERENCES golf_course(id),
+    player_id INT REFERENCES golf_player (id) ON DELETE CASCADE,
+    course_id INT REFERENCES golf_course(id),
     round_score INT,
     round_date DATE,
     num_holes INT
