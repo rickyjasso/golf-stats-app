@@ -219,3 +219,42 @@ exports.newGolfRound = async(req, res) => {
         })
     }
 }
+
+exports.newGolfHole = async(req, res) => {
+    
+    try {
+        let {course_id, hole_number, par, distance} = req.body;
+        response = await db.query(`INSERT INTO golf_hole (course_id, hole_number, par, distance, hole_score)
+                                   VALUES ($1, $2, $3, $4, 0)`, [course_id, hole_number, par, distance]);
+        return res.status(200).json({
+        success: true,
+        message: 'Golf hole created correctly.',
+        res: response.rows[0],
+    })
+    } catch (error) {
+        res.status(500).json({
+            error: error.message
+        })
+    }                
+}
+
+// TODO: INSERT A NEW GOLF HOLE AND UPDATE GOLF_ROUND SCORE ON SUBMIT HOLE, 
+
+exports.finishedHole = async(req, res) => {
+    try {
+        let {hole_score} = req.body;
+        response = await db.query(`UPDATE golf_round
+                                   SET round_score = round_score + $1`, [hole_score]);
+                return res.status(200).json({
+        success: true,
+        message: 'Hole completed.',
+        res: response.rows[0],
+    })                       
+    } catch (error) {
+        res.status(500).json({
+            error: error.message
+        })
+    }
+}
+
+// TODO: INSERT NEW GOLF SHOT AND UPDATE GOLF_HOLE SCORE ON SUBMIT SHOT
