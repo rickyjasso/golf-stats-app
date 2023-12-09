@@ -174,3 +174,173 @@ exports.getGolfBag = async (req, res) => {
 
     return
 }
+
+exports.getAllCourses = async (req, res) => {
+    try {
+        const result = await db.query(`SELECT * FROM golf_course`)
+        return res.status(200).json({
+            success: true,
+            message: 'Golf courses fetched correctly.',
+            golf_courses: result.rows,
+        })
+    } catch (error) {
+        res.status(500).json({
+            error: error.message
+        })
+    }
+}
+
+exports.getGolfCourse = async (req, res) => {
+    try {
+        const {id} = req.params;
+        const result = await db.query(`SELECT * FROM golf_course WHERE id = $1`, [id])
+        return res.status(200).json({
+            success: true,
+            message: 'Golf course fetched correctly.',
+            golf_course: result.rows[0]
+        })
+    } catch (error) {
+        res.status(500).json({
+            error: error.message
+        })
+    }
+
+}
+
+// ! HERE
+
+exports.newGolfRound = async(req, res) => {
+    let token = req.cookies.token;
+    if (!token) {
+        // Handle the case when there's no token (user not authenticated)
+        return res.status(401).json({ error: 'Unauthorized' });
+    }
+
+    try {
+        let decoded = jwt.verify(token, SECRET);
+        let golf_player = decoded.id;
+        let {course_id, num_holes} = req.body;
+        const date = new Date()
+        const todaysDate = date.toLocaleDateString()
+        response = await db.query(`INSERT INTO golf_round (player_id, course_id, round_score, round_date, num_holes)
+                        VALUES ($1, $2, 0, $3, $4)`, [golf_player, course_id, todaysDate, num_holes]);
+        
+        return res.status(200).json({
+            success: true,
+            message: 'Golf round created correctly.',
+            res: response.rows[0],
+        })
+    } catch (error) {
+        res.status(500).json({
+            error: error.message
+        })
+    }
+}
+
+exports.getGolfRounds = async(req, res) => {
+    let token = req.cookies.token;
+    if (!token) {
+        // Handle the case when there's no token (user not authenticated)
+        return res.status(401).json({ error: 'Unauthorized' });
+    }
+
+    try {
+        let decoded = jwt.verify(token, SECRET);
+        let golf_player = decoded.id;
+        response = await db.query(`SELECT * FROM golf_round WHERE player_id = $1`, [golf_player]);
+        
+        return res.status(200).json({
+            success: true,
+            message: 'Golf rounds by player fetched correctly.',
+            golf_rounds: response.rows,
+        })
+    } catch (error) {
+        res.status(500).json({
+            error: error.message
+        })
+    }
+}
+
+exports.getGolfRound = async(req, res) => {
+    let token = req.cookies.token;
+    if (!token) {
+        // Handle the case when there's no token (user not authenticated)
+        return res.status(401).json({ error: 'Unauthorized' });
+    }
+    
+    try {
+        let decoded = jwt.verify(token, SECRET);
+        let golf_player = decoded.id;
+        let id = req.params
+        response = await db.query(`SELECT * FROM golf_round WHERE player_id = $1 AND id = $2`, [golf_player, id]);
+        
+        return res.status(200).json({
+            success: true,
+            message: 'Golf rounds by player fetched correctly.',
+            golf_rounds: response.rows,
+        })
+    } catch (error) {
+        res.status(500).json({
+            error: error.message
+        })
+    }
+}
+
+exports.newGolfHole = async(req, res) => {
+    
+    try {
+        let {course_id, hole_number, par, distance} = req.body;
+        response = await db.query(`INSERT INTO golf_hole (course_id, hole_number, par, distance, hole_score)
+                                   VALUES ($1, $2, $3, $4, 0)`, [course_id, hole_number, par, distance]);
+        return res.status(200).json({
+        success: true,
+        message: 'Golf hole created correctly.',
+        res: response.rows[0],
+    })
+    } catch (error) {
+        res.status(500).json({
+            error: error.message
+        })
+    }                
+}
+
+// TODO: INSERT A NEW GOLF HOLE AND UPDATE GOLF_ROUND SCORE ON SUBMIT HOLE, 
+
+exports.finishedHole = async(req, res) => {
+    try {
+        let {hole_score} = req.body;
+        response = await db.query(`UPDATE golf_round
+                                   SET round_score = round_score + $1`, [hole_score]);
+                return res.status(200).json({
+        success: true,
+        message: 'Hole completed.',
+        res: response.rows[0],
+    })                       
+    } catch (error) {
+        res.status(500).json({
+            error: error.message
+        })
+    }
+}
+
+// TODO: INSERT NEW GOLF SHOT AND UPDATE GOLF_HOLE SCORE ON SUBMIT SHOT
+
+exports.newGolfShot = async(req, res) => {
+    try {
+        let {hole_id, distance, golf_club_id, shape, outcome, good_shot} = req.body;
+        response = await db.query(`INSERT INTO golf_shot (hole_id, distance, golf_club_id, shape, outcome, good_shot)
+                                    VALUES ($1, $2, $3, $4, $5, $6)`, [hole_id, distance, golf_club_id, shape, outcome, good_shot]);
+        await db.query(`UPDATE golf_hole
+        SET hole_score = hole_score + 1
+        WHERE id = $1`, [hole_id]);
+        return res.status(200).json({
+        success: true,
+        message: 'Shot submitted.',
+        res: response.rows[0],
+    })
+    } catch (error) {
+        res.status(500).json({
+            error: error.message
+        })
+    }
+}

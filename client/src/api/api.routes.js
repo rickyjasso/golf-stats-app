@@ -36,3 +36,27 @@ export async function onUpdateGolfClub(clubId, clubData){
         `http://localhost:3000/golfclubs/${clubId}`, clubData
     )
 }
+
+export async function onGetGolfCourses(){
+    return await axios.get(
+        `http://localhost:3000/golfcourses/`
+    )
+}
+
+export async function onGetGolfCourse(courseId){
+    return await axios.get(
+        `http://localhost:3000/golfcourses/${courseId}`
+    )
+}
+
+export async function onNewGolfRound(roundData){
+    return await axios.post(
+        `http://localhost:3000/golfround`, roundData
+    )
+}
+
+export async function onGetGolfRounds(){
+    return await axios.get(
+        `http://localhost:3000/golfrounds/`
+    )
+}

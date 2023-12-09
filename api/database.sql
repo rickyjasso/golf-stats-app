@@ -30,8 +30,8 @@ CREATE TABLE golf_course(
 
 CREATE TABLE golf_round(
     id SERIAL PRIMARY KEY,
-    player_id INT UNIQUE REFERENCES golf_player (id) ON DELETE CASCADE,
-    course_id INT UNIQUE REFERENCES golf_course(id),
+    player_id INT REFERENCES golf_player (id) ON DELETE CASCADE,
+    course_id INT REFERENCES golf_course(id),
     round_score INT,
     round_date DATE,
     num_holes INT
@@ -39,7 +39,7 @@ CREATE TABLE golf_round(
 
 CREATE TABLE golf_hole(
     id SERIAL PRIMARY KEY,
-    course_id INT UNIQUE REFERENCES golf_course(id),
+    course_id INT REFERENCES golf_course(id),
     hole_number INT,
     par INT,
     distance INT,
@@ -48,9 +48,9 @@ CREATE TABLE golf_hole(
 
 CREATE TABLE golf_shot(
     id SERIAL PRIMARY KEY,
-    hole_id INT UNIQUE REFERENCES golf_hole (id),
+    hole_id INT REFERENCES golf_hole (id),
     distance INT,
-    golf_club_id INT UNIQUE REFERENCES golf_club (id),
+    golf_club_id INT REFERENCES golf_club (id),
     shape TEXT,
     outcome TEXT,
     good_shot BOOLEAN

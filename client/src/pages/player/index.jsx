@@ -7,8 +7,8 @@ const Player = () => {
     <div className='px-5 my-12 flex flex-col justify-center items-center'>
       <h1 className='text-3xl mb-10'>Welcome back!</h1>
       <Card linkTo='/golfbag' body='My Golf Bag' />
-      <Card linkTo='/golfbag' body='View Rounds' />
-      <Card linkTo='/golfbag' body='New Round' />
+      <Card linkTo='/roundhistory' body='View Rounds' />
+      <Card linkTo='/golfround' body='New Round' />
     </div>
   )
 }
