@@ -1,4 +1,4 @@
-const { getGolfBag, createGolfBag, addGolfClub, getGolfClubs, deleteGolfClub, updateGolfClub, getGolfCourse, newGolfRound, newGolfHole, finishedHole, newGolfShot, getAllCourses } = require('../controllers/api.controllers');
+const { getGolfBag, createGolfBag, addGolfClub, getGolfClubs, deleteGolfClub, updateGolfClub, getGolfCourse, newGolfRound, newGolfHole, finishedHole, newGolfShot, getAllCourses, getGolfRounds } = require('../controllers/api.controllers');
 const {Router} = require('express');
 const router = Router();
 
@@ -11,7 +11,11 @@ const router = Router();
 
     router.get('/golfcourses/:id', getGolfCourse);
     router.get('/golfcourses/', getAllCourses);
+    
+    router.get('/golfround', getGolfRounds);
     router.post('/golfround', newGolfRound);
+
+
     router.post('/golfhole', newGolfHole);
     router.post('/updatescore', finishedHole);
     router.post('/golfshot', newGolfShot);

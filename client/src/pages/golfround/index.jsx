@@ -38,7 +38,7 @@ const GolfRound = () => {
     };
   
     return (
-      <div className="max-w-md mx-auto mt-8">
+      <div className="px-5 max-w-md mx-auto mt-8">
         <form onSubmit={handleSubmit} className="space-y-4">
           <label className="block">
             <span className="text-gray-700">Select a Course:</span>
