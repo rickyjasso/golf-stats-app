@@ -197,7 +197,7 @@ exports.getGolfCourse = async (req, res) => {
         return res.status(200).json({
             success: true,
             message: 'Golf course fetched correctly.',
-            res: result.rows[0]
+            golf_course: result.rows[0]
         })
     } catch (error) {
         res.status(500).json({
@@ -248,6 +248,31 @@ exports.getGolfRounds = async(req, res) => {
         let decoded = jwt.verify(token, SECRET);
         let golf_player = decoded.id;
         response = await db.query(`SELECT * FROM golf_round WHERE player_id = $1`, [golf_player]);
+        
+        return res.status(200).json({
+            success: true,
+            message: 'Golf rounds by player fetched correctly.',
+            golf_rounds: response.rows,
+        })
+    } catch (error) {
+        res.status(500).json({
+            error: error.message
+        })
+    }
+}
+
+exports.getGolfRound = async(req, res) => {
+    let token = req.cookies.token;
+    if (!token) {
+        // Handle the case when there's no token (user not authenticated)
+        return res.status(401).json({ error: 'Unauthorized' });
+    }
+    
+    try {
+        let decoded = jwt.verify(token, SECRET);
+        let golf_player = decoded.id;
+        let id = req.params
+        response = await db.query(`SELECT * FROM golf_round WHERE player_id = $1 AND id = $2`, [golf_player, id]);
         
         return res.status(200).json({
             success: true,

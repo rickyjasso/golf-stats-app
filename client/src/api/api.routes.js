@@ -43,8 +43,20 @@ export async function onGetGolfCourses(){
     )
 }
 
+export async function onGetGolfCourse(courseId){
+    return await axios.get(
+        `http://localhost:3000/golfcourses/${courseId}`
+    )
+}
+
 export async function onNewGolfRound(roundData){
     return await axios.post(
         `http://localhost:3000/golfround`, roundData
+    )
+}
+
+export async function onGetGolfRounds(){
+    return await axios.get(
+        `http://localhost:3000/golfrounds/`
     )
 }
