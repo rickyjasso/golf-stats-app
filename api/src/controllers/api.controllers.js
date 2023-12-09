@@ -192,6 +192,8 @@ exports.getGolfCourse = async (req, res) => {
 
 }
 
+// ! HERE
+
 exports.newGolfRound = async(req, res) => {
     let token = req.cookies.token;
     if (!token) {
@@ -258,3 +260,23 @@ exports.finishedHole = async(req, res) => {
 }
 
 // TODO: INSERT NEW GOLF SHOT AND UPDATE GOLF_HOLE SCORE ON SUBMIT SHOT
+
+exports.newGolfShot = async(req, res) => {
+    try {
+        let {hole_id, distance, golf_club_id, shape, outcome, good_shot} = req.body;
+        response = await db.query(`INSERT INTO golf_shot (hole_id, distance, golf_club_id, shape, outcome, good_shot)
+                                    VALUES ($1, $2, $3, $4, $5, $6)`, [hole_id, distance, golf_club_id, shape, outcome, good_shot]);
+        await db.query(`UPDATE golf_hole
+        SET hole_score = hole_score + 1
+        WHERE id = $1`, [hole_id]);
+        return res.status(200).json({
+        success: true,
+        message: 'Shot submitted.',
+        res: response.rows[0],
+    })
+    } catch (error) {
+        res.status(500).json({
+            error: error.message
+        })
+    }
+}
