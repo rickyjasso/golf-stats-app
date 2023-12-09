@@ -8,6 +8,7 @@ import RestrictedRoutes from './private/restrictedRoutes'
 import PrivateRoutes from './private/privateRoutes'
 import Player from './pages/player'
 import GolfBag from './pages/golfbag'
+import GolfRound from './pages/golfround'
 
 
 function App() {
@@ -21,6 +22,7 @@ function App() {
           <Route path='/player' element={<Player/>}/>
           <Route path='/stats' element={<Stats/>}/>
           <Route path='/golfbag' element={<GolfBag/>}/>
+          <Route path='/golfround' element={<GolfRound/>}/>
         </Route>
 
         <Route element={<RestrictedRoutes/>}>
