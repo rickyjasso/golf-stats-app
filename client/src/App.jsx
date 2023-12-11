@@ -10,6 +10,7 @@ import Player from './pages/player'
 import GolfBag from './pages/golfbag'
 import GolfRound from './pages/golfround'
 import RoundHistory from './pages/roundhistory'
+import ViewRound from './pages/viewround'
 
 
 function App() {
@@ -25,6 +26,7 @@ function App() {
           <Route path='/golfbag' element={<GolfBag/>}/>
           <Route path='/golfround' element={<GolfRound/>}/>
           <Route path='/roundhistory' element={<RoundHistory/>}/>
+          <Route path='/viewround/:id' element={<ViewRound/>}/>
         </Route>
 
         <Route element={<RestrictedRoutes/>}>

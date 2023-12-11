@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { onGetGolfCourses, onNewGolfRound } from '../../api/api.routes';
 
-
 const GolfRound = () => {
     const [courses, setCourses] = useState([]);
     const [values, setValues] = useState({
@@ -70,8 +69,7 @@ const GolfRound = () => {
             <option value="9">9 Holes</option>
             <option value="18">18 Holes</option>
           </select>
-        </label>
-  
+        </label>  
           <button type="submit" className="bg-blue-500 text-white p-2 rounded-md hover:bg-blue-600 transition duration-300" >
             Create Golf Round
           </button>

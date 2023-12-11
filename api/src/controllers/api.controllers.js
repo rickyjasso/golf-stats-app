@@ -271,13 +271,40 @@ exports.getGolfRound = async(req, res) => {
     try {
         let decoded = jwt.verify(token, SECRET);
         let golf_player = decoded.id;
-        let id = req.params
+        const {id} = req.params
         response = await db.query(`SELECT * FROM golf_round WHERE player_id = $1 AND id = $2`, [golf_player, id]);
         
         return res.status(200).json({
             success: true,
             message: 'Golf rounds by player fetched correctly.',
-            golf_rounds: response.rows,
+            golf_round: response.rows[0],
+        })
+    } catch (error) {
+        res.status(500).json({
+            error: error.message
+        })
+    }
+}
+
+exports.getGolfRoundHoles = async(req, res) => {
+    let token = req.cookies.token;
+    if (!token) {
+        // Handle the case when there's no token (user not authenticated)
+        return res.status(401).json({ error: 'Unauthorized' });
+    }
+    
+    try {
+        const {id} = req.params
+        response = await db.query(`SELECT gh.hole_number, gh.par, gh.distance, gr.round_score, gr.round_date
+        FROM golf_hole gh
+        JOIN golf_course gc ON gh.course_id = gc.id
+        JOIN golf_round gr ON gc.id = gr.course_id
+        WHERE gr.id = $1;`, [id]);
+        
+        return res.status(200).json({
+            success: true,
+            message: 'Golf holes for this round fetched correctly.',
+            golf_roundholes: response.rows,
         })
     } catch (error) {
         res.status(500).json({

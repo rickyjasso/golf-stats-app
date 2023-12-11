@@ -60,3 +60,15 @@ export async function onGetGolfRounds(){
         `http://localhost:3000/golfrounds/`
     )
 }
+
+export async function onGetGolfRound(roundId){
+    return await axios.get(
+        `http://localhost:3000/golfround/${roundId}`
+    )
+}
+
+export async function onGetRoundHoles(roundId){
+    return await axios.get(
+        `http://localhost:3000/golfround/holes/${roundId}`
+    )
+}
