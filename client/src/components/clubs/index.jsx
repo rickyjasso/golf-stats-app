@@ -1,5 +1,4 @@
 import React, {useState, useEffect} from 'react'
-import axios from 'axios'
 import { onAddGolfClubs, onDeleteGolfClubs, onGetGolfClubs, onUpdateGolfClub } from '../../api/api.routes';
 import { MdDelete, MdEdit } from "react-icons/md";
 

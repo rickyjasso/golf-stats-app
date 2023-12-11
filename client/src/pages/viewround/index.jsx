@@ -1,17 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { onGetGolfRound, onGetRoundHoles } from '../../api/api.routes';
-import { useParams } from "react-router-dom";
+import {Link, useParams } from "react-router-dom";
 
 const ViewRound = ({ match }) => {
   const [round, setRound] = useState({});
   const [holes, setHoles] = useState([]);
 
-  console.log(holes)
 
   let {id} = useParams();
   
   useEffect(() => {
-    console.log(id)
     // Fetch round information
     onGetGolfRound(id)
       .then(response => setRound(response.data.golf_round))
@@ -28,7 +26,6 @@ const ViewRound = ({ match }) => {
     const date = new Date(dateString);
     return date.toLocaleDateString();
   };
-
 
   return (
     <div className="px-5 container mx-auto mt-8">
@@ -52,6 +49,9 @@ const ViewRound = ({ match }) => {
           ))}
         </ul>
       </div>
+      <Link to="/newhole" state={{ round_id: round.id, course_id: round.course_id }} className="bg-blue-500 text-white py-2 px-4 rounded focus:outline-none focus:shadow-outline-blue active:bg-blue-800">
+        Add Hole
+      </Link>
     </div>
   );
 };

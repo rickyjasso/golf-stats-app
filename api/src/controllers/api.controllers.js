@@ -1,6 +1,7 @@
 const db = require('../db');
 const jwt = require('jsonwebtoken');
-const {SECRET} = require('../constants')
+const {SECRET} = require('../constants');
+const { response } = require('express');
 
 
 exports.addGolfClub = async(req, res) => {
@@ -222,7 +223,7 @@ exports.newGolfRound = async(req, res) => {
         let {course_id, num_holes} = req.body;
         const date = new Date()
         const todaysDate = date.toLocaleDateString()
-        response = await db.query(`INSERT INTO golf_round (player_id, course_id, round_score, round_date, num_holes)
+        let response = await db.query(`INSERT INTO golf_round (player_id, course_id, round_score, round_date, num_holes)
                         VALUES ($1, $2, 0, $3, $4)`, [golf_player, course_id, todaysDate, num_holes]);
         
         return res.status(200).json({
@@ -247,7 +248,7 @@ exports.getGolfRounds = async(req, res) => {
     try {
         let decoded = jwt.verify(token, SECRET);
         let golf_player = decoded.id;
-        response = await db.query(`SELECT * FROM golf_round WHERE player_id = $1`, [golf_player]);
+        let response = await db.query(`SELECT * FROM golf_round WHERE player_id = $1`, [golf_player]);
         
         return res.status(200).json({
             success: true,
@@ -272,7 +273,7 @@ exports.getGolfRound = async(req, res) => {
         let decoded = jwt.verify(token, SECRET);
         let golf_player = decoded.id;
         const {id} = req.params
-        response = await db.query(`SELECT * FROM golf_round WHERE player_id = $1 AND id = $2`, [golf_player, id]);
+        let response = await db.query(`SELECT * FROM golf_round WHERE player_id = $1 AND id = $2`, [golf_player, id]);
         
         return res.status(200).json({
             success: true,
@@ -295,7 +296,7 @@ exports.getGolfRoundHoles = async(req, res) => {
     
     try {
         const {id} = req.params
-        response = await db.query(`SELECT gh.hole_number, gh.par, gh.distance, gr.round_score, gr.round_date
+        let response = await db.query(`SELECT gh.hole_number, gh.par, gh.distance, gr.round_score, gr.round_date
         FROM golf_hole gh
         JOIN golf_course gc ON gh.course_id = gc.id
         JOIN golf_round gr ON gc.id = gr.course_id
@@ -313,12 +314,61 @@ exports.getGolfRoundHoles = async(req, res) => {
     }
 }
 
+exports.getGolfHole = async(req, res) => {
+    let token = req.cookies.token;
+    if (!token) {
+        // Handle the case when there's no token (user not authenticated)
+        return res.status(401).json({ error: 'Unauthorized' });
+    }
+    
+    try {
+        const {id} = req.body
+        let response = await db.query(`SELECT * FROM golf_hole WHERE id = $1`, [id]);
+        
+        return res.status(200).json({
+            success: true,
+            message: 'Golf hole fetched correctly.',
+            golf_hole: response.rows[0],
+        })
+    } catch (error) {
+        res.status(500).json({
+            error: error.message
+        })
+    }
+}
+
+exports.getGolfHoleScore = async(req, res) => {
+    let token = req.cookies.token;
+    if (!token) {
+        // Handle the case when there's no token (user not authenticated)
+        return res.status(401).json({ error: 'Unauthorized' });
+    }
+    
+    try {
+        const {id} = req.query
+        let response = await db.query(`SELECT hole_score FROM golf_hole WHERE id = $1`, [id]);
+        
+        return res.status(200).json({
+            success: true,
+            message: 'Golf hole score fetched correctly.',
+            golf_hole_score: response.rows[0],
+        })
+    } catch (error) {
+        res.status(500).json({
+            error: error.message
+        })
+    }
+}
+
 exports.newGolfHole = async(req, res) => {
     
     try {
-        let {course_id, hole_number, par, distance} = req.body;
-        response = await db.query(`INSERT INTO golf_hole (course_id, hole_number, par, distance, hole_score)
-                                   VALUES ($1, $2, $3, $4, 0)`, [course_id, hole_number, par, distance]);
+        let {round_id, course_id, hole_number, par, distance} = req.body;
+        let response = await db.query(`
+        INSERT INTO golf_hole (round_id, course_id, hole_number, par, distance, hole_score)
+        VALUES ($1, $2, $3, $4, $5, 0)
+        RETURNING id;
+        `, [round_id, course_id, hole_number, par, distance]);
         return res.status(200).json({
         success: true,
         message: 'Golf hole created correctly.',
@@ -334,11 +384,18 @@ exports.newGolfHole = async(req, res) => {
 // TODO: INSERT A NEW GOLF HOLE AND UPDATE GOLF_ROUND SCORE ON SUBMIT HOLE, 
 
 exports.finishedHole = async(req, res) => {
+    let token = req.cookies.token;
+    if (!token) {
+        // Handle the case when there's no token (user not authenticated)
+        return res.status(401).json({ error: 'Unauthorized' });
+    }
     try {
-        let {hole_score} = req.body;
-        response = await db.query(`UPDATE golf_round
-                                   SET round_score = round_score + $1`, [hole_score]);
-                return res.status(200).json({
+        let {hole_score, round_id} = req.body;
+        console.log(hole_score, round_id)
+        let response = await db.query(`UPDATE golf_round
+                                   SET round_score = round_score + $1
+                                   WHERE id = $2`, [hole_score, round_id]);
+        return res.status(200).json({
         success: true,
         message: 'Hole completed.',
         res: response.rows[0],
@@ -350,12 +407,13 @@ exports.finishedHole = async(req, res) => {
     }
 }
 
+
 // TODO: INSERT NEW GOLF SHOT AND UPDATE GOLF_HOLE SCORE ON SUBMIT SHOT
 
 exports.newGolfShot = async(req, res) => {
     try {
         let {hole_id, distance, golf_club_id, shape, outcome, good_shot} = req.body;
-        response = await db.query(`INSERT INTO golf_shot (hole_id, distance, golf_club_id, shape, outcome, good_shot)
+        let response = await db.query(`INSERT INTO golf_shot (hole_id, distance, golf_club_id, shape, outcome, good_shot)
                                     VALUES ($1, $2, $3, $4, $5, $6)`, [hole_id, distance, golf_club_id, shape, outcome, good_shot]);
         await db.query(`UPDATE golf_hole
         SET hole_score = hole_score + 1

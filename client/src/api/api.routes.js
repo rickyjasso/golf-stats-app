@@ -72,3 +72,37 @@ export async function onGetRoundHoles(roundId){
         `http://localhost:3000/golfround/holes/${roundId}`
     )
 }
+
+
+export async function onNewGolfHole(holeData){
+    return await axios.post(
+        `http://localhost:3000/golfhole`, holeData
+    )
+}
+
+export async function onNewGolfShot(shotData){
+    return await axios.post(
+        `http://localhost:3000/golfshot`, shotData
+    )
+}
+
+export async function onGetGolfHole(holeId){
+    return await axios.get(
+        `http://localhost:3000/golfhole`, holeId
+    )
+}
+
+
+export async function onGetGolfHoleScore(holeId){
+    return await axios.get(
+        `http://localhost:3000/golfholescore`, { params: holeId }
+    )
+}
+
+export async function onFinishedHole(updateData){
+    return await axios.put(
+        `http://localhost:3000/updatescore`, updateData
+    )
+}
+
+
