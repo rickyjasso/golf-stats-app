@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { useLocation } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import { onFinishedHole, onGetGolfClubs, onGetGolfHole, onGetGolfHoleScore, onNewGolfHole, onNewGolfShot } from '../../api/api.routes'
 
 const NewHole = () => {
@@ -46,7 +46,7 @@ const NewHole = () => {
             try {
                 const response = await onGetGolfHoleScore({id: shotValues.hole_id});
                 const updatedHoleScore = response.data.golf_hole_score;
-                console.log(updatedHoleScore)
+                console.log("TEST:", updatedHoleScore)
                 setValues({ ...values, holeScore: updatedHoleScore });
             } catch (error) {
                 console.error('Error fetching golf hole score:', error);
@@ -95,6 +95,7 @@ const NewHole = () => {
         try {
             const res = await onFinishedHole(updateData)
             console.log(res)
+
             return;
         } catch (error) {
             console.log('Error updating hole score', error)
@@ -207,9 +208,9 @@ const NewHole = () => {
           )}
     
           {step === 2 && (
-            <button onClick={() => onAddHole({hole_score: values.holeScore, round_id: round_id})} className="bg-blue-500 text-white p-2 my-2 rounded-md w-32 text-center">
+            <Link to={`/viewround/${round_id}`} onClick={() => onAddHole({hole_score: values.holeScore, round_id: round_id})} className="bg-blue-500 text-white p-2 my-2 rounded-md w-32 text-center">
               Finish Hole
-            </button>
+            </Link>
           )}
         </div>
       );

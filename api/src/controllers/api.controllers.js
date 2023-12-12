@@ -296,7 +296,7 @@ exports.getGolfRoundHoles = async(req, res) => {
     
     try {
         const {id} = req.params
-        let response = await db.query(`SELECT gh.hole_number, gh.par, gh.distance, gr.round_score, gr.round_date
+        let response = await db.query(`SELECT gh.hole_number, gh.par, gh.distance, gh.hole_score, gr.round_score, gr.round_date
         FROM golf_hole gh
         JOIN golf_course gc ON gh.course_id = gc.id
         JOIN golf_round gr ON gc.id = gr.course_id
@@ -391,10 +391,10 @@ exports.finishedHole = async(req, res) => {
     }
     try {
         let {hole_score, round_id} = req.body;
-        console.log(hole_score, round_id)
+        console.log(hole_score.hole_score, round_id)
         let response = await db.query(`UPDATE golf_round
                                    SET round_score = round_score + $1
-                                   WHERE id = $2`, [hole_score, round_id]);
+                                   WHERE id = $2`, [hole_score.hole_score, round_id]);
         return res.status(200).json({
         success: true,
         message: 'Hole completed.',
