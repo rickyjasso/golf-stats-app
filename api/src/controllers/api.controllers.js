@@ -224,8 +224,7 @@ exports.newGolfRound = async(req, res) => {
         const date = new Date()
         const todaysDate = date.toISOString()
         let response = await db.query(`INSERT INTO golf_round (player_id, course_id, round_score, round_date, num_holes)
-                        VALUES ($1, $2, 0, $3, $4)`, [golf_player, course_id, todaysDate, num_holes]);
-        
+                        VALUES ($1, $2, 0, $3, $4) RETURNING id`, [golf_player, course_id, todaysDate, num_holes]);
         return res.status(200).json({
             success: true,
             message: 'Golf round created correctly.',
