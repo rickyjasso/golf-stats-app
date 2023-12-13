@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { onGetGolfRound, onGetRoundHoles } from '../../api/api.routes';
 import {Link, useParams } from "react-router-dom";
+import { MdEdit } from "react-icons/md";
 
 const ViewRound = ({ match }) => {
   const [round, setRound] = useState({});
@@ -45,11 +46,14 @@ const ViewRound = ({ match }) => {
               <p>Par: {hole.par}</p>
               <p>Distance: {hole.distance}</p>
               <p>Score: {hole.hole_score}</p>
+              <Link to="/newhole" state={{ round_id: round.id, course_id: round.course_id, edit: true, hole_number: hole.hole_number, par: hole.par, distance: hole.distance, holeScore: hole.hole_score, hole_id: hole.id }}>
+                <MdEdit/>
+            </Link>
             </li>
           ))}
         </ul>
       </div>
-      <Link to="/newhole" state={{ round_id: round.id, course_id: round.course_id }} className="bg-blue-500 text-white py-2 px-4 rounded focus:outline-none focus:shadow-outline-blue active:bg-blue-800">
+      <Link to="/newhole" state={{ round_id: round.id, course_id: round.course_id, edit: false }} className="bg-blue-500 text-white py-2 px-4 rounded focus:outline-none focus:shadow-outline-blue active:bg-blue-800">
         Add Hole
       </Link>
     </div>

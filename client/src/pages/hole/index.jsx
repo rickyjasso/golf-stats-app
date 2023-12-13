@@ -4,8 +4,8 @@ import { onFinishedHole, onGetGolfClubs, onGetGolfHole, onGetGolfHoleScore, onNe
 
 const NewHole = () => {
     const location = useLocation()
-    const {round_id, course_id} = location.state
-
+    const { round_id, course_id, edit, hole_number, par, distance, holeScore, hole_id } = location.state;
+    console.log(location.state)
     const [values, setValues] = useState({
         round_id: round_id,
         course_id: course_id,
@@ -28,7 +28,14 @@ const NewHole = () => {
     const [golfClubs, setGolfClubs] = useState(null);
 
     useEffect(() => {
-        fetchGolfClubs();
+      fetchGolfClubs();
+      if (edit === true){
+        // fetchHoleScore(hole_id)
+        setValues({...values, hole_number: hole_number, par: par, distance: distance, holeScore: holeScore})
+        setShotValues({...shotValues, hole_id: hole_id})
+        setStep(2);
+      };
+      console.log("HERE", values)
       }, [])
     
         
@@ -45,8 +52,7 @@ const NewHole = () => {
         const fetchHoleScore = async () => {
             try {
                 const response = await onGetGolfHoleScore({id: shotValues.hole_id});
-                const updatedHoleScore = response.data.golf_hole_score;
-                console.log("TEST:", updatedHoleScore)
+                const updatedHoleScore = response.data.golf_hole_score.hole_score;
                 setValues({ ...values, holeScore: updatedHoleScore });
             } catch (error) {
                 console.error('Error fetching golf hole score:', error);
@@ -138,12 +144,12 @@ const NewHole = () => {
                 <p>Hole Number: {values.hole_number}</p>
                 <p>Par: {values.par}</p>
                 <p>Distance: {values.distance}</p>
-                <p>Hole Score: {values.holeScore ? values.holeScore.hole_score : 'N/A'}</p>
+                <p>Hole Score: {values.holeScore}</p>
               </div>
             )}
           </div>
     
-          {step === 2 && (
+          {step === 2 && golfClubs && (
             <div>
               <form className="flex flex-col" onSubmit={onSubmitGolfShot}>
                 {/* New form for adding a shot */}

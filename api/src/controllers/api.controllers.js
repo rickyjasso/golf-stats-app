@@ -296,7 +296,7 @@ exports.getGolfRoundHoles = async(req, res) => {
     
     try {
         const {id} = req.params
-        let response = await db.query(`SELECT gh.hole_number, gh.par, gh.distance, gh.hole_score, gr.round_score, gr.round_date
+        let response = await db.query(`SELECT gh.id, gh.hole_number, gh.par, gh.distance, gh.hole_score, gr.round_score, gr.round_date
         FROM golf_hole gh
         JOIN golf_course gc ON gh.course_id = gc.id
         JOIN golf_round gr ON gc.id = gr.course_id
