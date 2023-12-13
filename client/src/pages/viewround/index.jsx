@@ -1,13 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { onGetGolfRound, onGetRoundHoles } from '../../api/api.routes';
-import {Link, useParams } from "react-router-dom";
+import {Link, useParams} from "react-router-dom";
 import { MdEdit } from "react-icons/md";
 
 const ViewRound = ({ match }) => {
   const [round, setRound] = useState({});
   const [holes, setHoles] = useState([]);
-
-
   let {id} = useParams();
   
   useEffect(() => {
@@ -21,7 +19,7 @@ const ViewRound = ({ match }) => {
       .then(response => setHoles(response.data.golf_roundholes))
       .catch(error => console.error('Error fetching holes:', error));
 
-  }, [id]);
+  }, [id, round.round_score]);
 
   const formatRoundDate = (dateString) => {
     const date = new Date(dateString);

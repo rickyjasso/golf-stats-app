@@ -5,7 +5,6 @@ import { onFinishedHole, onGetGolfClubs, onGetGolfHole, onGetGolfHoleScore, onNe
 const NewHole = () => {
     const location = useLocation()
     const { round_id, course_id, edit, hole_number, par, distance, holeScore, hole_id } = location.state;
-    console.log(location.state)
     const [values, setValues] = useState({
         round_id: round_id,
         course_id: course_id,
@@ -36,7 +35,6 @@ const NewHole = () => {
         setShotValues({...shotValues, hole_id: hole_id})
         setStep(2);
       };
-      console.log("HERE", values)
       }, [])
     
         
@@ -67,7 +65,6 @@ const NewHole = () => {
 
       const onShotChange = (e) => {
         setShotValues({ ...shotValues, [e.target.name]: e.target.value });
-        console.log(shotValues)
       };
 
       const onSubmitGolfShot = async (e) => {
