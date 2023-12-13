@@ -429,3 +429,31 @@ exports.newGolfShot = async(req, res) => {
         })
     }
 }
+
+exports.deleteGolfHole = async(req, res) => {
+    let token = req.cookies.token;
+    if (!token) {
+        // Handle the case when there's no token (user not authenticated)
+        return res.status(401).json({ error: 'Unauthorized' });
+    }
+    try {
+        let {id} = req.params
+        let parsedId = parseInt(id);
+        let {hole_score, round_id} = req.body;
+        await db.query('DELETE FROM golf_shot WHERE hole_id = $1', [id])
+        let result = await db.query(`DELETE FROM golf_hole WHERE id = $1`, [id])
+        await db.query(`UPDATE golf_round SET round_score = COALESCE(round_score, 0) - $1
+                                   WHERE id = $2 RETURNING *`, [hole_score, round_id]);
+        if (result.rowCount === 0) return res.status(404).json({
+            message: "Hole not found",
+        });
+        return res.status(204).json({
+            success: true,
+            message: 'Golf hole deleted correctly.',
+        })
+    } catch (error) {
+        res.status(500).json({
+            error: error.message
+        })
+    }
+}

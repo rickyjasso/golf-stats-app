@@ -1,23 +1,29 @@
 import React, { useState, useEffect } from 'react';
-import { onGetGolfRound, onGetRoundHoles } from '../../api/api.routes';
+import { onDeleteGolfHole, onGetGolfRound, onGetRoundHoles } from '../../api/api.routes';
 import {Link, useParams} from "react-router-dom";
-import { MdEdit } from "react-icons/md";
+import { MdEdit, MdDelete } from "react-icons/md";
 
 const ViewRound = ({ match }) => {
   const [round, setRound] = useState({});
   const [holes, setHoles] = useState([]);
   let {id} = useParams();
   
+  const fetchData = () => {
+      // Fetch round information
+      onGetGolfRound(id)
+        .then(response => setRound(response.data.golf_round))
+        .catch(error => console.error('Error fetching round:', error));
+  
+      // Fetch holes for the round
+      onGetRoundHoles(id)
+        .then(response => setHoles(response.data.golf_roundholes))
+        .catch(error => console.error('Error fetching holes:', error));
+  }
+  
   useEffect(() => {
-    // Fetch round information
-    onGetGolfRound(id)
-      .then(response => setRound(response.data.golf_round))
-      .catch(error => console.error('Error fetching round:', error));
 
-    // Fetch holes for the round
-    onGetRoundHoles(id)
-      .then(response => setHoles(response.data.golf_roundholes))
-      .catch(error => console.error('Error fetching holes:', error));
+
+    fetchData();
 
   }, [id, round.round_score]);
 
@@ -26,6 +32,14 @@ const ViewRound = ({ match }) => {
     return date.toLocaleDateString();
   };
 
+  const handleDelete = async (hole_id, roundData) => {
+    try {
+      await onDeleteGolfHole(hole_id, roundData);
+      fetchData();
+    } catch (error) {
+      console.log(error);
+    }
+  }
   return (
     <div className="px-5 container mx-auto mt-8">
       <div className="mb-4">
@@ -44,9 +58,12 @@ const ViewRound = ({ match }) => {
               <p>Par: {hole.par}</p>
               <p>Distance: {hole.distance}</p>
               <p>Score: {hole.hole_score}</p>
-              <Link to="/newhole" state={{ round_id: round.id, course_id: round.course_id, edit: true, hole_number: hole.hole_number, par: hole.par, distance: hole.distance, holeScore: hole.hole_score, hole_id: hole.id }}>
-                <MdEdit/>
-            </Link>
+              <div className='flex'>
+                <Link to="/newhole" state={{ round_id: round.id, course_id: round.course_id, edit: true, hole_number: hole.hole_number, par: hole.par, distance: hole.distance, holeScore: hole.hole_score, hole_id: hole.id }}>
+                  <MdEdit/>
+                </Link>
+                <button onClick={() => handleDelete(hole.id, {round_id: round.id, hole_score: hole.hole_score})}><MdDelete/></button>
+              </div>
             </li>
           ))}
         </ul>

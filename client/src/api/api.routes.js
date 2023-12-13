@@ -105,4 +105,12 @@ export async function onFinishedHole(updateData){
     )
 }
 
+export async function onDeleteGolfHole(holeId, roundData){
+    return await axios.delete(
+        `http://localhost:3000/golfhole/${holeId}`, {
+            data: roundData, // This is used by Axios to include the data in the request body
+        }
+    )
+}
+
 
