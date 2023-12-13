@@ -222,7 +222,7 @@ exports.newGolfRound = async(req, res) => {
         let golf_player = decoded.id;
         let {course_id, num_holes} = req.body;
         const date = new Date()
-        const todaysDate = date.toLocaleDateString()
+        const todaysDate = date.toISOString()
         let response = await db.query(`INSERT INTO golf_round (player_id, course_id, round_score, round_date, num_holes)
                         VALUES ($1, $2, 0, $3, $4)`, [golf_player, course_id, todaysDate, num_holes]);
         
@@ -391,10 +391,11 @@ exports.finishedHole = async(req, res) => {
     }
     try {
         let {hole_score, round_id} = req.body;
-        console.log(hole_score.hole_score, round_id)
+        console.log(hole_score, round_id)
         let response = await db.query(`UPDATE golf_round
-                                   SET round_score = round_score + $1
-                                   WHERE id = $2`, [hole_score.hole_score, round_id]);
+                                   SET round_score = COALESCE(round_score, 0) + $1
+                                   WHERE id = $2 RETURNING *`, [hole_score, round_id]);
+        console.log(response)
         return res.status(200).json({
         success: true,
         message: 'Hole completed.',

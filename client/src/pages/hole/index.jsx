@@ -26,6 +26,7 @@ const NewHole = () => {
 
     const [step, setStep] = useState(1);
     const [golfClubs, setGolfClubs] = useState(null);
+    const [editScore, setEditScore] = useState(0)
 
     useEffect(() => {
       fetchGolfClubs();
@@ -80,6 +81,9 @@ const NewHole = () => {
             setShotValues({
                 ...shotValues, distance: null, golf_club_id: null, shape: null, outcome: null, good_shot: null,
             })
+            if (edit === true){
+              setEditScore(editScore+1)
+            } 
         }
       };
     
@@ -100,7 +104,6 @@ const NewHole = () => {
       const onAddHole = async (updateData) => {
         try {
             const res = await onFinishedHole(updateData)
-            console.log(res)
 
             return;
         } catch (error) {
@@ -214,7 +217,7 @@ const NewHole = () => {
           )}
     
           {step === 2 && (
-            <Link to={`/viewround/${round_id}`} onClick={() => onAddHole({hole_score: values.holeScore, round_id: round_id})} className="bg-blue-500 text-white p-2 my-2 rounded-md w-32 text-center">
+            <Link to={`/viewround/${round_id}`} onClick={() => {let submitScore = values.holeScore; if (edit === true){submitScore = editScore} onAddHole({hole_score: submitScore, round_id: round_id}) }} className="bg-blue-500 text-white p-2 my-2 rounded-md w-32 text-center">
               Finish Hole
             </Link>
           )}
