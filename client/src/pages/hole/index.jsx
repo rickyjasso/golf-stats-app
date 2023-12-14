@@ -4,7 +4,9 @@ import { onFinishedHole, onGetGolfClubs, onGetGolfHole, onGetGolfHoleScore, onGe
 
 const NewHole = () => {
     const location = useLocation()
-    const { round_id, course_id, edit, hole_number, par, distance, holeScore, hole_id } = location.state;
+    const { round_id, course_id, edit, hole_number, par, distance, holeScore } = location.state;
+    let {hole_id} = location.state;
+    
     const [values, setValues] = useState({
         round_id: round_id,
         course_id: course_id,
@@ -29,9 +31,9 @@ const NewHole = () => {
     const [holeShots, setHoleShots] = useState([])
 
     useEffect(() => {
-      fetchHoleShots(hole_id);
       fetchGolfClubs();
       if (edit === true){
+        fetchHoleShots(hole_id);
         // fetchHoleScore(hole_id)
         setValues({...values, hole_number: hole_number, par: par, distance: distance, holeScore: holeScore})
         setShotValues({...shotValues, hole_id: hole_id})
@@ -39,7 +41,7 @@ const NewHole = () => {
       };
       }, [holeShots])
     
-      const fetchHoleShots = async (id) => {
+      const fetchHoleShots = async (hole_id) => {
         try {
           await onGetHoleShots(hole_id)
           .then(response => setHoleShots(response.data.golf_hole_shots))
@@ -82,11 +84,13 @@ const NewHole = () => {
         try {
             await onNewGolfShot(shotValues)
             await fetchHoleScore(shotValues.hole_id)
-        } catch (error) {
-          console.error(error.response ? error.response.data : error.message);
+            console.log(hole_id)
+            await fetchHoleShots(shotValues.hole_id)
+          } catch (error) {
+            console.error(error.response ? error.response.data : error.message);
         } finally {
             setShotValues({
-                ...shotValues, distance: null, golf_club_id: null, shape: null, outcome: null, good_shot: null,
+                ...shotValues, distance: null, golf_club_id: "", shape: null, outcome: null, good_shot: null,
             })
             if (edit === true){
               setEditScore(editScore+1)
@@ -103,7 +107,7 @@ const NewHole = () => {
         e.preventDefault();
         try {
             const result = await onNewGolfHole(values)
-            let hole_id = result.data.res.id
+            hole_id = result.data.res.id
             setShotValues({...shotValues, hole_id: hole_id});
             // Step 2: Update the step when the hole details are submitted
             setStep(2);
@@ -161,7 +165,7 @@ const NewHole = () => {
                   <p>Distance: {values.distance}</p>
                   <p>Hole Score: {values.holeScore}</p>
                 </div>
-                {golfClubs && (                  
+                {golfClubs && holeShots && (                  
                 <div>
                   <ul className="flex flex-col">
                   {holeShots.map((shot, index) => (

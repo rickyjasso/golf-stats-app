@@ -368,6 +368,7 @@ exports.newGolfHole = async(req, res) => {
         VALUES ($1, $2, $3, $4, $5, 0)
         RETURNING id;
         `, [round_id, course_id, hole_number, par, distance]);
+        console.log(response.rows[0].id)
         return res.status(200).json({
         success: true,
         message: 'Golf hole created correctly.',
@@ -465,6 +466,7 @@ exports.getHoleShots = async(req, res) => {
     }
     try {
         const {holeId} = req.query
+        console.log(req.query)
         let response = await db.query(`SELECT * FROM golf_shot WHERE hole_id = $1`, [holeId]);
         return res.status(200).json({
             success: true,
