@@ -119,4 +119,11 @@ export async function onGetHoleShots(holeId){
     )
 }
 
+export async function onDeleteGolfShot(shotId, hole_id){
+    return await axios.delete(
+        `http://localhost:3000/golfshot/${shotId}`, { data: { hole_id } }
+    )
+}
+
+
 

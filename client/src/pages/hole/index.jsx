@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import { onFinishedHole, onGetGolfClubs, onGetGolfHole, onGetGolfHoleScore, onGetHoleShots, onNewGolfHole, onNewGolfShot } from '../../api/api.routes'
+import { onDeleteGolfHole, onDeleteGolfShot, onFinishedHole, onGetGolfClubs, onGetGolfHole, onGetGolfHoleScore, onGetHoleShots, onNewGolfHole, onNewGolfShot } from '../../api/api.routes'
+import { MdDelete, MdEdit } from "react-icons/md";
 
 const NewHole = () => {
     const location = useLocation()
@@ -31,6 +32,7 @@ const NewHole = () => {
     const [holeShots, setHoleShots] = useState([])
 
     useEffect(() => {
+      console.log("calling fetch hole shots 33333")
       fetchGolfClubs();
       if (edit === true){
         fetchHoleShots(hole_id);
@@ -39,9 +41,10 @@ const NewHole = () => {
         setShotValues({...shotValues, hole_id: hole_id})
         setStep(2);
       };
-      }, [holeShots])
+      }, [])
     
       const fetchHoleShots = async (hole_id) => {
+        console.log("HERE", hole_id)
         try {
           await onGetHoleShots(hole_id)
           .then(response => setHoleShots(response.data.golf_hole_shots))
@@ -126,6 +129,19 @@ const NewHole = () => {
         }
       };
 
+      const handleDeleteShot = async (shot_id, hole_id) => {
+        try {
+          await onDeleteGolfShot(shot_id, hole_id);
+          await fetchHoleShots(hole_id);
+          await fetchHoleScore(shotValues.hole_id)
+          if (edit === true){
+            setEditScore(editScore-1)
+          } 
+        } catch (error) {
+          console.log(error);
+        }
+      }
+
       return (
         <div className="px-5 flex flex-col">
           <div>
@@ -176,6 +192,14 @@ const NewHole = () => {
                         <p><span className='font-bold'>Shape: </span>{shot.shape}</p>
                         <p><span className='font-bold'>Outcome: </span>{shot.outcome}</p>
                         <p><span className='font-bold'>Result: </span>{shot.good_shot ? 'Good Shot': 'Bad Shot'}</p>
+                        <div className='flex'>
+                          <button>
+                            <MdEdit/>
+                          </button>
+                          <button onClick={() => handleDeleteShot(shot.id, shotValues.hole_id)}>
+                            <MdDelete/>
+                          </button>
+                        </div>
                     </li>
                   ))}
                   </ul>
@@ -249,7 +273,7 @@ const NewHole = () => {
           )}
     
           {step === 2 && (
-            <Link to={`/viewround/${round_id}`} onClick={() => {let submitScore = values.holeScore; if (edit === true){submitScore = editScore} onAddHole({hole_score: submitScore, round_id: round_id}) }} className="bg-blue-500 text-white p-2 my-2 rounded-md w-32 text-center">
+            <Link to={`/viewround/${round_id}`} onClick={() => {console.log(values.holeScore, "ENDDD");let submitScore = values.holeScore; if (edit === true){submitScore = editScore} onAddHole({hole_score: submitScore, round_id: round_id}) }} className="bg-blue-500 text-white p-2 my-2 rounded-md w-32 text-center">
               Finish Hole
             </Link>
           )}

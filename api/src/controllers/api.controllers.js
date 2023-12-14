@@ -368,7 +368,6 @@ exports.newGolfHole = async(req, res) => {
         VALUES ($1, $2, $3, $4, $5, 0)
         RETURNING id;
         `, [round_id, course_id, hole_number, par, distance]);
-        console.log(response.rows[0].id)
         return res.status(200).json({
         success: true,
         message: 'Golf hole created correctly.',
@@ -394,7 +393,6 @@ exports.finishedHole = async(req, res) => {
         let response = await db.query(`UPDATE golf_round
                                    SET round_score = COALESCE(round_score, 0) + $1
                                    WHERE id = $2 RETURNING *`, [hole_score, round_id]);
-        console.log(response)
         return res.status(200).json({
         success: true,
         message: 'Hole completed.',
@@ -438,7 +436,6 @@ exports.deleteGolfHole = async(req, res) => {
     }
     try {
         let {id} = req.params
-        let parsedId = parseInt(id);
         let {hole_score, round_id} = req.body;
         await db.query('DELETE FROM golf_shot WHERE hole_id = $1', [id])
         let result = await db.query(`DELETE FROM golf_hole WHERE id = $1`, [id])
@@ -466,12 +463,38 @@ exports.getHoleShots = async(req, res) => {
     }
     try {
         const {holeId} = req.query
-        console.log(req.query)
         let response = await db.query(`SELECT * FROM golf_shot WHERE hole_id = $1`, [holeId]);
         return res.status(200).json({
             success: true,
             message: 'Golf hole score fetched correctly.',
             golf_hole_shots: response.rows,
+        })
+    } catch (error) {
+        res.status(500).json({
+            error: error.message
+        })
+    }
+}
+
+exports.deleteGolfShot = async(req, res) => {
+    let token = req.cookies.token;
+    if (!token) {
+        // Handle the case when there's no token (user not authenticated)
+        return res.status(401).json({ error: 'Unauthorized' });
+    }
+    try {
+        let {id} = req.params
+        let {hole_id} = req.body
+        let result = await db.query(`DELETE FROM golf_shot WHERE id = $1`, [id])
+        await db.query(`UPDATE golf_hole
+        SET hole_score = COALESCE(hole_score, 0) - 1
+        WHERE id = $1`, [hole_id]);
+        if (result.rowCount === 0) return res.status(404).json({
+            message: "Shot not found",
+        });
+        return res.status(204).json({
+            success: true,
+            message: 'Golf shot deleted correctly.',
         })
     } catch (error) {
         res.status(500).json({
