@@ -456,3 +456,24 @@ exports.deleteGolfHole = async(req, res) => {
         })
     }
 }
+
+exports.getHoleShots = async(req, res) => {
+    let token = req.cookies.token;
+    if (!token) {
+        // Handle the case when there's no token (user not authenticated)
+        return res.status(401).json({ error: 'Unauthorized' });
+    }
+    try {
+        const {holeId} = req.query
+        let response = await db.query(`SELECT * FROM golf_shot WHERE hole_id = $1`, [holeId]);
+        return res.status(200).json({
+            success: true,
+            message: 'Golf hole score fetched correctly.',
+            golf_hole_shots: response.rows,
+        })
+    } catch (error) {
+        res.status(500).json({
+            error: error.message
+        })
+    }
+}

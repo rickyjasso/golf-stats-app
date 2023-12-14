@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import { onFinishedHole, onGetGolfClubs, onGetGolfHole, onGetGolfHoleScore, onNewGolfHole, onNewGolfShot } from '../../api/api.routes'
+import { onFinishedHole, onGetGolfClubs, onGetGolfHole, onGetGolfHoleScore, onGetHoleShots, onNewGolfHole, onNewGolfShot } from '../../api/api.routes'
 
 const NewHole = () => {
     const location = useLocation()
@@ -26,8 +26,10 @@ const NewHole = () => {
     const [step, setStep] = useState(1);
     const [golfClubs, setGolfClubs] = useState(null);
     const [editScore, setEditScore] = useState(0)
+    const [holeShots, setHoleShots] = useState([])
 
     useEffect(() => {
+      fetchHoleShots(hole_id);
       fetchGolfClubs();
       if (edit === true){
         // fetchHoleScore(hole_id)
@@ -35,29 +37,37 @@ const NewHole = () => {
         setShotValues({...shotValues, hole_id: hole_id})
         setStep(2);
       };
-      }, [])
+      }, [holeShots])
     
-        
-        
-        const fetchGolfClubs = async () => {
-            try {
-                const response = await onGetGolfClubs();
-                setGolfClubs(response.data.golf_clubs.sort((a, b) => a.club_id - b.club_id));
-            } catch (error) {
-                console.error('Error fetching golf clubs:', error);
-            }
+      const fetchHoleShots = async (id) => {
+        try {
+          await onGetHoleShots(hole_id)
+          .then(response => setHoleShots(response.data.golf_hole_shots))
+          .catch(error => console.error('Error fetching shots:', error));
+        } catch (error) {
+          console.error('Error fetching golf shots:', error);
         }
+      }
+        
+      const fetchGolfClubs = async () => {
+          try {
+              const response = await onGetGolfClubs();
+              setGolfClubs(response.data.golf_clubs.sort((a, b) => a.club_id - b.club_id));
+          } catch (error) {
+              console.error('Error fetching golf clubs:', error);
+          }
+      }
 
-        const fetchHoleScore = async () => {
-            try {
-                const response = await onGetGolfHoleScore({id: shotValues.hole_id});
-                const updatedHoleScore = response.data.golf_hole_score.hole_score;
-                setValues({ ...values, holeScore: updatedHoleScore });
-            } catch (error) {
-                console.error('Error fetching golf hole score:', error);
+      const fetchHoleScore = async () => {
+          try {
+              const response = await onGetGolfHoleScore({id: shotValues.hole_id});
+              const updatedHoleScore = response.data.golf_hole_score.hole_score;
+              setValues({ ...values, holeScore: updatedHoleScore });
+          } catch (error) {
+              console.error('Error fetching golf hole score:', error);
 
-            }
-        }
+          }
+      }
     
         const onChange = (e) => {
         setValues({ ...values, [e.target.name]: e.target.value });
@@ -84,6 +94,10 @@ const NewHole = () => {
         }
       };
     
+      const findClubDetails = (clubId) => {
+        const club = golfClubs.find((club) => club.club_id === clubId);
+        return club ? `${club.club_number} ${club.club_type}` : 'Unknown Club';
+      };
 
       const onSubmitHoleDetails = async (e) => {
         e.preventDefault();
@@ -140,15 +154,32 @@ const NewHole = () => {
     
             {step === 2 && (
               <div>
-                {/* Display hole details */}
-                <p>Hole Number: {values.hole_number}</p>
-                <p>Par: {values.par}</p>
-                <p>Distance: {values.distance}</p>
-                <p>Hole Score: {values.holeScore}</p>
+                <div>
+                  {/* Display hole details */}
+                  <p>Hole Number: {values.hole_number}</p>
+                  <p>Par: {values.par}</p>
+                  <p>Distance: {values.distance}</p>
+                  <p>Hole Score: {values.holeScore}</p>
+                </div>
+                {golfClubs && (                  
+                <div>
+                  <ul className="flex flex-col">
+                  {holeShots.map((shot, index) => (
+                    <li key={shot.id} className="p-5 bg-white rounded-md border shadow-md m-2">
+                      <p className='font-bold text-start'>Shot {index + 1}</p>
+                        <p><span className='font-bold'>Club: </span>{findClubDetails(shot.golf_club_id)}</p>
+                        <p><span className='font-bold'>Distance: </span>{shot.distance} yds</p>
+                        <p><span className='font-bold'>Shape: </span>{shot.shape}</p>
+                        <p><span className='font-bold'>Outcome: </span>{shot.outcome}</p>
+                        <p><span className='font-bold'>Result: </span>{shot.good_shot ? 'Good Shot': 'Bad Shot'}</p>
+                    </li>
+                  ))}
+                  </ul>
+                </div>
+                  )}
               </div>
             )}
           </div>
-    
           {step === 2 && golfClubs && (
             <div>
               <form className="flex flex-col" onSubmit={onSubmitGolfShot}>
