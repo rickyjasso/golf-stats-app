@@ -1,17 +1,18 @@
 import React, { useEffect, useState } from 'react'
 import { onGetGolfCourses, onNewGolfRound } from '../../api/api.routes';
-
+import { useNavigate } from 'react-router-dom';
 
 const GolfRound = () => {
+    const navigate = useNavigate();
     const [courses, setCourses] = useState([]);
     const [values, setValues] = useState({
         course_id: '',
-        num_holes: 0
+        num_holes: ''
     });
     useEffect(() => {
         fetchData();
     }, []);
-
+    let newRoundId = null;
     const fetchData = async () => {
         try {
             onGetGolfCourses()
@@ -31,7 +32,10 @@ const GolfRound = () => {
       e.preventDefault();
       // Handle form submission with the selectedCourse value
       try {
-        await onNewGolfRound(values)
+        let response = await onNewGolfRound(values)
+        newRoundId = response.data.res.id;
+        console.log(newRoundId)
+        navigate(`/viewround/${newRoundId}`);
       } catch (error) {
         console.log(error)
       }
@@ -70,11 +74,11 @@ const GolfRound = () => {
             <option value="9">9 Holes</option>
             <option value="18">18 Holes</option>
           </select>
-        </label>
-  
-          <button type="submit" className="bg-blue-500 text-white p-2 rounded-md hover:bg-blue-600 transition duration-300" >
+        </label>  
+          <button type="submit" className="bg-blue-500 text-white p-2 my-2 rounded-md w-32 text-center">
             Create Golf Round
           </button>
+
         </form>
       </div>
     );

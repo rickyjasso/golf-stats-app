@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { onGetGolfCourse, onGetGolfRounds } from '../../api/api.routes';
+import { onGetGolfCourse, onGetGolfRound, onGetGolfRounds } from '../../api/api.routes';
+import {Link} from 'react-router-dom'
 
 const RoundHistory = () => {
   const [golfRounds, setGolfRounds] = useState([]);
@@ -37,6 +38,16 @@ const RoundHistory = () => {
     return date.toLocaleDateString();
   };
 
+  // const goToRound = async (round_id) => {
+  //   console.log(round_id)
+  //   try {
+  //     const response = await onGetGolfRound(round_id);
+  //     console.log(response.data.golf_round);
+  //   } catch (error) {
+  //     console.error('Error fetching round', error);
+  //   }
+  // }
+
   return (
     <div className="px-5 max-w-md mx-auto mt-8">
       <h2 className="text-2xl font-bold mb-4">Your Golf Rounds</h2>
@@ -45,12 +56,13 @@ const RoundHistory = () => {
       ) : (
         <ul className="space-y-4">
           {golfRounds.map((round) => (
-            <li key={round.id} className="border p-4 rounded-md">
+            <li key={round.id} className="border p-4 rounded-md flex flex-col">
               <p>Course Name: {round.courseName}</p>
               <p>Date: {round.formattedDate}</p>
               <p>Score: {round.round_score}</p>
               <p>Number of Holes: {round.num_holes}</p>
               {/* Add more details as needed */}
+              <Link to={`/viewround/${round.id}`} className='bg-blue-500 text-white p-2 my-2 rounded-md w-32 text-center'>View Round</Link>
             </li>
           ))}
         </ul>
