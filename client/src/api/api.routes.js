@@ -125,5 +125,10 @@ export async function onDeleteGolfShot(shotId, hole_id){
     )
 }
 
+export async function onUpdateGolfShot(shotId, shotData){
+    return await axios.put(
+        `http://localhost:3000/golfshot/${shotId}`, shotData
+    )
+}
 
 

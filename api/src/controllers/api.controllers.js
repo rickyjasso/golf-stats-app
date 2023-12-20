@@ -502,3 +502,27 @@ exports.deleteGolfShot = async(req, res) => {
         })
     }
 }
+
+exports.updateGolfShot = async(req, res) => {
+    let token = req.cookies.token;
+    if (!token) {
+        // Handle the case when there's no token (user not authenticated)
+        return res.status(401).json({ error: 'Unauthorized' });
+    }
+    try {
+        let {id} = req.params
+        let {distance, golf_club_id, shape, outcome, good_shot} = req.body;
+        let result = await db.query(`UPDATE golf_shot SET distance = $1, golf_club_id = $2, shape = $3, outcome = $4, good_shot = $5 WHERE id = $6`, [distance, golf_club_id, shape, outcome, good_shot, id])
+        if (result.rowCount === 0) return res.status(404).json({
+            message: "Shot not found",
+        });
+        return res.status(204).json({
+            success: true,
+            message: 'Golf shot UPDATED correctly.',
+        })
+    } catch (error) {
+        res.status(500).json({
+            error: error.message
+        })
+    }
+}

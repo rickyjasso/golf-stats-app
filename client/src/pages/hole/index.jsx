@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import { onDeleteGolfHole, onDeleteGolfShot, onFinishedHole, onGetGolfClubs, onGetGolfHole, onGetGolfHoleScore, onGetHoleShots, onNewGolfHole, onNewGolfShot } from '../../api/api.routes'
+import { onDeleteGolfShot, onFinishedHole, onGetGolfClubs, onGetGolfHoleScore, onGetHoleShots, onNewGolfHole, onNewGolfShot, onUpdateGolfShot } from '../../api/api.routes'
 import { MdDelete, MdEdit } from "react-icons/md";
 
 const NewHole = () => {
     const location = useLocation()
     const { round_id, course_id, edit, hole_number, par, distance, holeScore } = location.state;
     let {hole_id} = location.state;
+    const [editMode, setEditMode] = useState(false);
+    const [editModeShot, setEditModeShot] = useState(0);
     
     const [values, setValues] = useState({
         round_id: round_id,
@@ -30,9 +32,9 @@ const NewHole = () => {
     const [golfClubs, setGolfClubs] = useState(null);
     const [editScore, setEditScore] = useState(0)
     const [holeShots, setHoleShots] = useState([])
+    
 
     useEffect(() => {
-      console.log("calling fetch hole shots 33333")
       fetchGolfClubs();
       if (edit === true){
         fetchHoleShots(hole_id);
@@ -44,7 +46,6 @@ const NewHole = () => {
       }, [])
     
       const fetchHoleShots = async (hole_id) => {
-        console.log("HERE", hole_id)
         try {
           await onGetHoleShots(hole_id)
           .then(response => setHoleShots(response.data.golf_hole_shots))
@@ -85,19 +86,27 @@ const NewHole = () => {
       const onSubmitGolfShot = async (e) => {
         e.preventDefault();
         try {
+          if (editMode) {
+            await onUpdateGolfShot(editModeShot, {
+              distance: shotValues.distance, golf_club_id: shotValues.golf_club_id, shape: shotValues.shape, outcome: shotValues.outcome, good_shot: shotValues.good_shot
+            })
+            await fetchHoleShots(shotValues.hole_id)
+          } else {
             await onNewGolfShot(shotValues)
             await fetchHoleScore(shotValues.hole_id)
             console.log(hole_id)
             await fetchHoleShots(shotValues.hole_id)
+          }
           } catch (error) {
             console.error(error.response ? error.response.data : error.message);
         } finally {
             setShotValues({
                 ...shotValues, distance: null, golf_club_id: "", shape: null, outcome: null, good_shot: null,
             })
-            if (edit === true){
+            if (edit === true && editMode != true){
               setEditScore(editScore+1)
             } 
+            setEditMode(false);
         }
       };
     
@@ -142,6 +151,44 @@ const NewHole = () => {
         }
       }
 
+      const handleEditShot = async (shot) => {
+        try {
+          setShotValues({
+            ...shotValues,
+            distance: shot.distance,
+            golf_club_id: shot.golf_club_id,
+            shape: shot.shape,
+            outcome: shot.outcome,
+            good_shot: shot.good_shot,
+          });
+          setEditMode(true); // Set edit mode to true
+          setEditModeShot(shot.id)
+
+          setHoleShots((prevShots) => {
+            const updatedShots = [...prevShots];
+            const index = updatedShots.findIndex((s) => s.id === shot.id);
+            if (index !== -1) {
+              console.log(index)
+              updatedShots[index] = {
+                ...updatedShots[index],
+                distance: shot.distance,
+                golf_club_id: shot.golf_club_id,
+                shape: shot.shape,
+                outcome: shot.outcome,
+                good_shot: shot.good_shot,
+              };
+            }
+            return updatedShots;
+          });
+        } catch (error) {
+          console.log(error)
+        }
+      }
+
+      const onCancelEdit = () => {
+        setEditMode(false); // Set edit mode back to false when canceling edit
+      };
+
       return (
         <div className="px-5 flex flex-col">
           <div>
@@ -181,7 +228,84 @@ const NewHole = () => {
                   <p>Distance: {values.distance}</p>
                   <p>Hole Score: {values.holeScore}</p>
                 </div>
-                {golfClubs && holeShots && (                  
+                
+                {editMode ? ( 
+
+              <form className="flex flex-col" onSubmit={onSubmitGolfShot}>
+                <input className='border border-black my-2 px-2'
+                  type="text"
+                  name="distance"
+                  placeholder="Distance"
+                  onChange={onShotChange}
+                />
+                <select
+                value={shotValues.golf_club_id}
+                name='golf_club_id'
+                onChange={(e) => onShotChange({ target: { name: 'golf_club_id', value: e.target.value } })}                className="mt-1 p-2 border rounded-md w-full"
+                >
+                <option value="" disabled>Select a club</option>
+                {golfClubs.map((club) => (
+                    <option key={club.club_id} value={club.club_id}>
+                    {club.club_type}: {club.club_number}
+                    </option>
+                ))}
+                </select>
+                {/* Add other shot details inputs */}
+                <input className='border border-black my-2 px-2'
+                  type="text"
+                  name="shape"
+                  placeholder="Shape"
+                  onChange={onShotChange}
+                />
+                <input className='border border-black my-2 px-2'
+                  type="text"
+                  name="outcome"
+                  placeholder="Outcome"
+                  onChange={onShotChange}
+                />
+                <div className='flex'>
+                    <div className='mr-5'>
+                    <label>
+                        Good Shot
+                        <input
+                        type="radio"
+                        name="good_shot"
+                        value="true"
+                        checked={shotValues.good_shot === 'true'}
+                        onChange={onShotChange}
+                        />
+                    </label>
+                    </div>
+                <label>
+                    Bad Shot
+                    <input
+                    type="radio"
+                    name="good_shot"
+                    value="false"
+                    checked={shotValues.good_shot === 'false'}
+                    onChange={onShotChange}
+                    />
+                </label>
+                </div>
+                <div className="flex">
+                    <button
+                      className="bg-yellow-500 text-white p-2 my-2 rounded-md w-32 text-center"
+                      type="submit"
+                    >
+                      Save Edit
+                    </button>
+                    <button
+                      className="bg-gray-500 text-white p-2 my-2 rounded-md w-32 text-center"
+                      type="button"
+                      onClick={onCancelEdit}
+                    >
+                      Cancel
+                    </button>
+                  </div>
+              </form>
+              ) : (<div>
+
+          {golfClubs && holeShots && (                  
                 <div>
                   <ul className="flex flex-col">
                   {holeShots.map((shot, index) => (
@@ -193,7 +317,7 @@ const NewHole = () => {
                         <p><span className='font-bold'>Outcome: </span>{shot.outcome}</p>
                         <p><span className='font-bold'>Result: </span>{shot.good_shot ? 'Good Shot': 'Bad Shot'}</p>
                         <div className='flex'>
-                          <button>
+                          <button onClick={() => handleEditShot(shot, shotValues.hole_id)}>
                             <MdEdit/>
                           </button>
                           <button onClick={() => handleDeleteShot(shot.id, shotValues.hole_id)}>
@@ -205,12 +329,15 @@ const NewHole = () => {
                   </ul>
                 </div>
                   )}
+              </div>)
+            }
               </div>
             )}
           </div>
           {step === 2 && golfClubs && (
             <div>
-              <form className="flex flex-col" onSubmit={onSubmitGolfShot}>
+              {!editMode ? (
+                <form className="flex flex-col" onSubmit={onSubmitGolfShot}>
                 {/* New form for adding a shot */}
                 <input className='border border-black my-2 px-2'
                   type="text"
@@ -269,11 +396,14 @@ const NewHole = () => {
                 </div>
                 <button className='bg-blue-500 text-white p-2 my-2 rounded-md w-32 text-center' type="submit">Add Shot</button>
               </form>
+              ) : (
+                <div></div>
+              )}
             </div>
           )}
     
           {step === 2 && (
-            <Link to={`/viewround/${round_id}`} onClick={() => {console.log(values.holeScore, "ENDDD");let submitScore = values.holeScore; if (edit === true){submitScore = editScore} onAddHole({hole_score: submitScore, round_id: round_id}) }} className="bg-blue-500 text-white p-2 my-2 rounded-md w-32 text-center">
+            <Link to={`/viewround/${round_id}`} onClick={() => {let submitScore = values.holeScore; if (edit === true){submitScore = editScore} onAddHole({hole_score: submitScore, round_id: round_id}) }} className="bg-blue-500 text-white p-2 my-2 rounded-md w-32 text-center">
               Finish Hole
             </Link>
           )}
