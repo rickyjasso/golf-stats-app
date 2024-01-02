@@ -390,6 +390,7 @@ exports.finishedHole = async(req, res) => {
     }
     try {
         let {hole_score, round_id} = req.body;
+        console.log(req.body)
         let response = await db.query(`UPDATE golf_round
                                    SET round_score = COALESCE(round_score, 0) + $1
                                    WHERE id = $2 RETURNING *`, [hole_score, round_id]);

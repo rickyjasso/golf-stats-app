@@ -100,6 +100,7 @@ export async function onGetGolfHoleScore(holeId){
 }
 
 export async function onFinishedHole(updateData){
+    console.log(updateData)
     return await axios.put(
         `http://localhost:3000/updatescore`, updateData
     )

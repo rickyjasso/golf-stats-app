@@ -403,7 +403,7 @@ const NewHole = () => {
           )}
     
           {step === 2 && (
-            <Link to={`/viewround/${round_id}`} onClick={() => {let submitScore = values.holeScore; if (edit === true){submitScore = editScore} onAddHole({hole_score: submitScore, round_id: round_id}) }} className="bg-blue-500 text-white p-2 my-2 rounded-md w-32 text-center">
+            <Link to={`/viewround/${round_id}`} onClick={() => {let submitScore = values.holeScore; if (edit === true){submitScore += editScore; onAddHole({hole_score: editScore, round_id: round_id})} else { onAddHole({hole_score: submitScore, round_id: round_id}) }}} className="bg-blue-500 text-white p-2 my-2 rounded-md w-32 text-center">
               Finish Hole
             </Link>
           )}

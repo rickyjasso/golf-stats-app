@@ -18,13 +18,11 @@ const ViewRound = ({ match }) => {
       onGetRoundHoles(id)
         .then(response => setHoles(response.data.golf_roundholes))
         .catch(error => console.error('Error fetching holes:', error));
+
   }
   
   useEffect(() => {
-
-
     fetchData();
-
   }, [id, round.round_score]);
 
   const formatRoundDate = (dateString) => {
